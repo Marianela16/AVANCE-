@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Óptica</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <h1>Tienda de Lentes</h1>
+    
+    <!-- Sección de productos -->
+    <div id="productos-container"></div>
+
+    <!-- Carrito de compras -->
+    <h2>Carrito de Compras</h2>
+    <div id="carrito"></div>
+    
+    <script>
+        // Simulación de DAO con carga de datos desde un archivo JSON
+        async function obtenerProductos() {
+            try {
+                const response = await fetch("datos/productos.json");
+                if (!response.ok) throw new Error("No se pudo cargar el archivo JSON");
+                const productos = await response.json();
+                return productos;
+            } catch (error) {
+                console.error("Error al obtener productos:", error);
+            }
+        }
+
+        // Lógica para mostrar productos y gestionar el carrito
+        document.addEventListener("DOMContentLoaded", async () => {
+            const productosContainer = document.getElementById("productos-container");
+            const carritoContainer = document.getElementById("carrito");
+            const productos = await obtenerProductos();
+
+            if (productos) {
+                // Mostrar productos en la vista
+                productos.forEach((producto) => {
+                    const productoDiv = document.createElement("div");
+                    productoDiv.classList.add("producto");
+                    productoDiv.innerHTML = `
+                        <h3>${producto.nombre}</h3>
+                        <p>Precio: $${producto.precio}</p>
+                        <button onclick="agregarAlCarrito(${producto.id})">Agregar al Carrito</button>
+                    `;
+                    productosContainer.appendChild(productoDiv);
+                });
+            }
+        });
+
+        const carrito = [];
+
+        // Función para agregar productos al carrito
+        function agregarAlCarrito(idProducto) {
+            obtenerProductos().then((productos) => {
+                const producto = productos.find((p) => p.id === idProducto);
+                if (producto) {
+                    carrito.push(producto);
+                    actualizarCarrito();
+                }
+            });
+        }
+
+        // Actualizar el carrito en la vista
+        function actualizarCarrito() {
+            const carritoContainer = document.getElementById("carrito");
+            carritoContainer.innerHTML = "";
+            carrito.forEach((producto) => {
+                const item = document.createElement("p");
+                item.textContent = `${producto.nombre} - $${producto.precio}`;
+                carritoContainer.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
